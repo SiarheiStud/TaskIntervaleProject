@@ -1,11 +1,14 @@
 package com.self.taskintervale.demoREST.entity.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.self.taskintervale.demoREST.jacksonutil.BookDeserializer;
 import com.self.taskintervale.demoREST.violation.CountDigits;
 
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@JsonDeserialize(using = BookDeserializer.class)
 public class BookDTO {
 
     @CountDigits(message = "ISBN должно состоять из 13 цифр.") // Самопальная аннатация валидирующая то чтобы ISBN
@@ -46,6 +49,15 @@ public class BookDTO {
 
 
     public BookDTO() {
+    }
+
+    public BookDTO(Long ISBN, String title, String author, int numberOfPages, double weight, BigDecimal price) {
+        this.ISBN = ISBN;
+        this.title = title;
+        this.author = author;
+        this.numberOfPages = numberOfPages;
+        this.weight = weight;
+        this.price = price;
     }
 
     public Long getISBN() {
