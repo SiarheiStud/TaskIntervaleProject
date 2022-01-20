@@ -3,62 +3,184 @@ package com.self.taskintervale.demoREST.repository;
 import com.self.taskintervale.demoREST.entity.BookEntity;
 import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
+import java.sql.*;
 import java.util.*;
 
 @Component
-public class BooksRepositoryImpl {
+public class BooksRepositoryImpl implements BookRepository{
 
-    private Map<Long, BookEntity> booksMap = new HashMap<>();
+    // CRUD запросы
+    private static final String GET_BOOKS = "SELECT * FROM book";
+    private static final String ADD_BOOK = "INSERT INTO book (ISBN, title, author, numberOfPages, weight, price)" +
+            "VALUES(?, ?, ?, ?, ?, ?);";
+    private static final String UPDATE_BOOK = "Update book SET ISBN=?, title=?, author=?, numberOfPages=?, weight=?, " +
+            "price=? WHERE id=?";
+    private static final String DELETE_BOOK = "DELETE FROM book WHERE id=?";
 
-    private static Long countId = 3L; // искусственный счётчик, стартовое количество элементов в booksMap = 3 (так как
-                                      // в booksMap заранее добавляем 3 элемента
+    // Вспомогательные запросы
+    private static final String FIND_BOOK_BY_ID = "SELECT * FROM book WHERE id=?";
+    private static final String FIND_BOOK_BY_ISBN = "SELECT * FROM book WHERE ISBN=?";
+    private static final String FIND_OTHER_BOOK_WITH_ISBN = "SELECT * FROM book WHERE ISBN=? AND id<>?";
 
-    {
-        booksMap.put(1L, new BookEntity(1L, 1234567891234L, "Безумство человека", "Малышева",
-                230, 0.255, BigDecimal.valueOf(120.15)));
-        booksMap.put(2L, new BookEntity(2L, 1114567891234L, "Русский язык", "Бортник",
-                130, 1.550, BigDecimal.valueOf(10.55)));
-        booksMap.put(3L, new BookEntity(3L, 1222567891234L, "Очистные сооружения", "Соколов",
-                50, 0.890, BigDecimal.valueOf(730.70)));
+
+    private Connection getConnection() throws SQLException {
+
+        return DriverManager.getConnection(
+                "jdbc:postgresql://localhost:5432/book_db",
+                "postgres",
+                "postgres");
     }
 
-    public Map<Long, BookEntity> getBooksMap() {
-        return booksMap;
+
+    @Override
+    public List<BookEntity> getBooks() {
+
+        List<BookEntity> booksList = new ArrayList<>();
+
+        try (Connection connection = getConnection();
+             PreparedStatement pStatement = connection.prepareStatement(GET_BOOKS)) {
+
+            ResultSet resultSet = pStatement.executeQuery();
+            while (resultSet.next()) {
+                Long id = resultSet.getLong("id");
+                String ISBN = resultSet.getString("ISBN");
+                String title = resultSet.getString("title");
+                String author = resultSet.getString("author");
+                int numberOfPages = resultSet.getInt("numberOfPages");
+                double weight = resultSet.getDouble("weight");
+                BigDecimal price = resultSet.getBigDecimal("price");
+
+                BookEntity bookEntity = new BookEntity(id, ISBN, title, author, numberOfPages, weight, price);
+                booksList.add(bookEntity);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return booksList;
     }
 
-    public void save(BookEntity bookEntity) {
-        countId = countId + 1;
-        bookEntity.setId(countId);
-        booksMap.put(countId, bookEntity);
+
+    @Override
+    public void saveBook(BookEntity bookEntity) {
+
+        try (Connection connection = getConnection();
+             PreparedStatement pStatement = connection.prepareStatement(ADD_BOOK)) {
+
+            pStatement.setString(1, bookEntity.getISBN());
+            pStatement.setString(2, bookEntity.getTitle());
+            pStatement.setString(3, bookEntity.getAuthor());
+            pStatement.setInt(4, bookEntity.getNumberOfPages());
+            pStatement.setDouble(5, bookEntity.getWeight());
+            pStatement.setBigDecimal(6, bookEntity.getPrice());
+            pStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
+
+    @Override
     public void updateBook(BookEntity bookEntity) {
-        booksMap.put(bookEntity.getId(), bookEntity);
+
+        try (Connection connection = getConnection();
+             PreparedStatement pStatement = connection.prepareStatement(UPDATE_BOOK)) {
+
+            pStatement.setString(1, bookEntity.getISBN());
+            pStatement.setString(2, bookEntity.getTitle());
+            pStatement.setString(3, bookEntity.getAuthor());
+            pStatement.setInt(4, bookEntity.getNumberOfPages());
+            pStatement.setDouble(5, bookEntity.getWeight());
+            pStatement.setBigDecimal(6, bookEntity.getPrice());
+            pStatement.setLong(7, bookEntity.getId());
+            pStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void delete(Long id) {
-        booksMap.remove(id);
+
+    @Override
+    public void deleteBook(Long id) {
+
+        try (Connection connection = getConnection();
+             PreparedStatement pStatement = connection.prepareStatement(DELETE_BOOK)) {
+
+            pStatement.setLong(1, id);
+            pStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public BookEntity getBookById(Long id) {
-        return booksMap.get(id);
+
+    // возвращает true если передаваемый id найден в базе
+    @Override
+    public boolean isContainsId(Long id) {
+
+        try (Connection connection = getConnection();
+             PreparedStatement pStatement = connection.prepareStatement(FIND_BOOK_BY_ID)) {
+
+            pStatement.setLong(1, id);
+            ResultSet resultSet = pStatement.executeQuery();
+
+            if (resultSet.next()) { // Если в resultSet есть содержимое, значит книга по id найдена
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false; // Книги с запрашиваемым id нет в базе
     }
 
-    // возвращает True если ISBN передаваемой книги book совпадает с ISBN книги уже имеющейся в каталоге
-    public boolean containsISBN(BookEntity bookEntity) {
-        return booksMap.values().stream().anyMatch(b -> bookEntity.getISBN().equals(b.getISBN()));
+
+    // возвращает True если ISBN передаваемой книги совпадает с ISBN книги уже имеющейся в базе
+    @Override
+    public boolean isContainsISBN(BookEntity bookEntity) {
+
+        try (Connection connection = getConnection();
+             PreparedStatement pStatement = connection.prepareStatement(FIND_BOOK_BY_ISBN)) {
+
+            pStatement.setString(1, bookEntity.getISBN());
+            ResultSet resultSet = pStatement.executeQuery();
+
+            if (resultSet.next()) { //Если в resultSet есть содержимое, значит ISBN занят другой книгой
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false; //Если запрос ничего не вернул, значит ISBN свободный (в базе нет книги с таким ISBN)
     }
+
 
     // возвращает True если ISBN книги book (передаваемой в параметре метода), совпадает с ISBN книги уже имеющейся
     // в каталоге (ситуация когда при редактировании книги, мы ввели ISBN который уже присвоен другой книге)
+    @Override
     public boolean otherBookContainsISBN(BookEntity bookEntity) {
-        return booksMap.values().stream().
-                filter(b -> !b.getId().equals(bookEntity.getId())).
-                anyMatch(b -> bookEntity.getISBN().equals(b.getISBN()));
+
+        try (Connection connection = getConnection();
+             PreparedStatement pStatement = connection.prepareStatement(FIND_OTHER_BOOK_WITH_ISBN)) {
+
+            pStatement.setString(1, bookEntity.getISBN());
+            pStatement.setLong(2, bookEntity.getId());
+            ResultSet resultSet = pStatement.executeQuery();
+
+            if (resultSet.next()) { //Если в resultSet есть содержимое, значит ISBN занят другой книгой
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false; //Если запрос ничего не вернул, значит ISBN свободный (в базе нет книги с таким ISBN)
     }
 
-    public boolean containsId(BookEntity bookEntity) {
-        return booksMap.containsKey(bookEntity.getId());
-    }
 }

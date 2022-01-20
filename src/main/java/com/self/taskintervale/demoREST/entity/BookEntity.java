@@ -1,7 +1,5 @@
 package com.self.taskintervale.demoREST.entity;
 
-import com.self.taskintervale.demoREST.violation.CountDigits;
-
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -11,11 +9,11 @@ public class BookEntity {
 
     private Long id;
 
-    @CountDigits(message = "ISBN должно состоять из 13 цифр.") // Самопальная аннатация валидирующая то чтобы ISBN
-                                                               // состоял ровно из 13 цифр
-    @NotNull(message = "Значение ISBN не должно быть null.")
-    @Positive(message = "Число ISBN не может быть отрицательным.")
-    private Long ISBN; //уникальный 13-ти значный номер состоящий из цифр
+
+    @NotBlank(message = "ISBN не должен быть null и не должен состоять из одних пробельных символов.")
+    @Pattern(regexp = "[0-9]{13}", message = "ISBN должен состоять из 13 цифр и иметь " +
+            "формат 1351735147093")
+    private String ISBN; //уникальный 13-ти значный номер состоящий из цифр, формат ISBN 1351735147093
 
 
     @NotBlank(message = "Название книги не должно быть null и не должно состоять из одних пробельных символов.")
@@ -47,10 +45,11 @@ public class BookEntity {
             "Максимальное количество цифр после запятой 2.")
     private BigDecimal price;
 
+
     public BookEntity() {
     }
 
-    public BookEntity(Long id, Long ISBN, String title, String author, int numberOfPages, double weight, BigDecimal price) {
+    public BookEntity(Long id, String ISBN, String title, String author, int numberOfPages, double weight, BigDecimal price) {
         this.id = id;
         this.ISBN = ISBN;
         this.title = title;
@@ -64,7 +63,7 @@ public class BookEntity {
         this.id = id;
     }
 
-    public void setISBN(Long ISBN) {
+    public void setISBN(String ISBN) {
         this.ISBN = ISBN;
     }
 
@@ -92,7 +91,7 @@ public class BookEntity {
         return id;
     }
 
-    public Long getISBN() {
+    public String getISBN() {
         return ISBN;
     }
 

@@ -44,7 +44,7 @@ public class BooksController {
     @PutMapping("/{id}")   //   localhost:8080/books/3   обновить информацию о книге
     public ResponseEntity<Object> updateBookInfo(@Valid @RequestBody BookDTO bookDTO,
                                                  @PathVariable @Min(value = 1, message = "Минимальное значение id = 1")
-                                                         Long id) throws ISBNAlreadyExistsException, BookNotFoundException {
+                                                 Long id) throws ISBNAlreadyExistsException, BookNotFoundException {
         bookService.updateBook(bookDTO, id);
         return new ResponseEntity<>("Изменения сохранены", HttpStatus.OK);
     }

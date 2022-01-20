@@ -31,7 +31,7 @@ public class BookDeserializer extends StdDeserializer<BookDTO> {
         int numberOfPages = node.get("numberOfPages").asInt();
         double weight = node.get("weight").asDouble();
         BigDecimal price = node.get("price").decimalValue();
-        Long ISBN = node.get("isbn").asLong();
+        String ISBN = node.get("isbn").asText();
 
         return new BookDTO(ISBN, title, author, numberOfPages, weight, price);
     }
