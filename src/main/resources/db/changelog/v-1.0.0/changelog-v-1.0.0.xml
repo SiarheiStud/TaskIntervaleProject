@@ -1,0 +1,16 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+
+    <include file="-1-changeset-create-table-book.xml" relativeToChangelogFile="true"/>
+
+    <changeSet id="before filling table book" author="Studziankou">
+        <tagDatabase tag="before_filling_table_book"/>
+    </changeSet>
+
+    <include file="-1-changeset-filling-table-book.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
