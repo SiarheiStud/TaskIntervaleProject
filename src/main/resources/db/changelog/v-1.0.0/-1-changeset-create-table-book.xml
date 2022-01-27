@@ -22,7 +22,7 @@
             <column name="author" type="varchar(20)">
                 <constraints nullable="false"/>
             </column>
-            <column name="numberofpages" type="integer">
+            <column name="numberOfPages" type="integer">
                 <constraints nullable="false"/>
             </column>
             <column name="weight" type="decimal">
