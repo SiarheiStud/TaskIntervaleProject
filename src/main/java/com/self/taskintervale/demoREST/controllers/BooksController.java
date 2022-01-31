@@ -1,6 +1,7 @@
 package com.self.taskintervale.demoREST.controllers;
 
 import com.self.taskintervale.demoREST.entity.dto.BookDTO;
+import com.self.taskintervale.demoREST.entity.dto.BookOpenLibraryDTO;
 import com.self.taskintervale.demoREST.exeptions.BookNotFoundException;
 import com.self.taskintervale.demoREST.exeptions.ISBNAlreadyExistsException;
 import com.self.taskintervale.demoREST.services.BookService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import java.util.List;
 
 @Tag(name = "BooksController", description = "отображены запросы контроллера") //Для swagger-а описание при генерации
 @Validated
@@ -55,5 +57,11 @@ public class BooksController {
                                                      Long id) throws BookNotFoundException {
         bookService.deleteBook(id);
         return new ResponseEntity<>("Книга удалена", HttpStatus.OK);
+    }
+
+    @GetMapping("/{authorName}")
+    public ResponseEntity<List<BookOpenLibraryDTO>> getBookByAuthorName(@PathVariable String authorName){
+
+        return new ResponseEntity<>(bookService.getBooksByAuthorName(authorName), HttpStatus.OK);
     }
 }

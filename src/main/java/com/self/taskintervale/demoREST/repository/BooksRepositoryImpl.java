@@ -31,6 +31,7 @@ public class BooksRepositoryImpl implements BookRepository{
     private static final String FIND_BOOK_BY_ID = "SELECT * FROM book WHERE id=?";
     private static final String FIND_BOOK_BY_ISBN = "SELECT * FROM book WHERE ISBN=?";
     private static final String FIND_OTHER_BOOK_WITH_ISBN = "SELECT * FROM book WHERE ISBN=? AND id<>?";
+    private static final String FIND_BOOK_BY_AUTHOR_NAME = "SELECT * FROM book WHERE author=?"; //LIKE %?%";
 
 
     @Override
@@ -92,4 +93,9 @@ public class BooksRepositoryImpl implements BookRepository{
         return !bookEntityList.isEmpty();
     }
 
+    public List<BookEntity> getBooksByAuthorName(String authorName) {
+
+        return jdbcTemplate.query(FIND_BOOK_BY_AUTHOR_NAME,
+                new BeanPropertyRowMapper<>(BookEntity.class), authorName);
+    }
 }
