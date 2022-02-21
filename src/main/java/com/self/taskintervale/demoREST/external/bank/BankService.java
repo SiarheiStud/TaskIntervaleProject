@@ -72,7 +72,7 @@ public class BankService {
 
         //Для каждой валюты находим соответствующий актуальный курс, и по нему рассчитываем стоимость книги
         for (Map.Entry<String, String> entry : isoMap.entrySet()) {
-            Optional<RateСurrency> rateOptional = ratesCurrencyList.getRates().stream()
+            Optional<RateСurrency> rateOptional = ratesCurrencyList.getRatesCurrencyFromBank().stream()
                     .filter(r -> Objects.equals(r.getName(), entry.getValue()))
                     .findAny();
 

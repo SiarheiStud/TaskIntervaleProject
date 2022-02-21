@@ -10,21 +10,14 @@ public class RatesCurrencyList {
 
     @JsonProperty("rates")
     @Valid
-    private List<RateСurrency> rateСurrencies;
+    private List<RateСurrency> ratesCurrencyFromBank;
 
-    public List<RateСurrency> getRates() {
-        return rateСurrencies;
+    public List<RateСurrency> getRatesCurrencyFromBank() {
+        return ratesCurrencyFromBank;
     }
 
-    public void setRates(List<RateСurrency> rateСurrencies) {
-        this.rateСurrencies = rateСurrencies;
-    }
-
-    public List<RateСurrency> getRateСurrencies() {
-        return rateСurrencies;
-    }
-
-    public void setRateСurrencies(List<RateСurrency> rateСurrencies) {
-        this.rateСurrencies = rateСurrencies;
+    public void setRatesCurrencyFromBank(List<RateСurrency> ratesCurrencyFromBank) {
+        this.ratesCurrencyFromBank = ratesCurrencyFromBank;
     }
 }
+
