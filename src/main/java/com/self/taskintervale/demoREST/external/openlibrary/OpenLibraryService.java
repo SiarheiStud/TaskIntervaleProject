@@ -25,8 +25,8 @@ public class OpenLibraryService {
     private final RestTemplate restTemplate;
 
     private final String BASE_URL = "http://openlibrary.org";
-    private final String URL_GET_ISBN = BASE_URL + "/api/books?bibkeys=ISBN:{isbn}&jscmd=data&format=json"; //"http://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&jscmd=data&format=json";
-    private final String URL_GET_BOOK_INFO = BASE_URL + "/search.json?author={authorName}";   //"http://openlibrary.org/search.json?author={authorName}"
+    private final String URL_GET_ISBN = BASE_URL + "/api/books?bibkeys=ISBN:{isbn}&jscmd=data&format=json";
+    private final String URL_GET_BOOK_INFO = BASE_URL + "/search.json?author={authorName}";
 
     @Autowired
     public OpenLibraryService(BooksRepositoryImpl booksRepositoryImpl, RestTemplate restTemplate) {

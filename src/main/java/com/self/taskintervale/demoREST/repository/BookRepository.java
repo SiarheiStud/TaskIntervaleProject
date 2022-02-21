@@ -14,5 +14,7 @@ public interface BookRepository {
     boolean isContainsId(Long id);
     boolean isContainsISBN(BookEntity bookEntity);
     boolean otherBookContainsISBN(BookEntity bookEntity);
+    List<BookEntity> getBooksByAuthorName(String authorName);
+    List<BookEntity> getBooksByTitle(String title);
 
 }
