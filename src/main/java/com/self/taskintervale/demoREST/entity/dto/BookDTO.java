@@ -2,11 +2,17 @@ package com.self.taskintervale.demoREST.entity.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.self.taskintervale.demoREST.jacksonutil.BookDeserializer;
+import lombok.*;
 
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
-import java.util.Objects;
 
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 @JsonDeserialize(using = BookDeserializer.class)
 public class BookDTO {
 
@@ -46,89 +52,4 @@ public class BookDTO {
             "Максимальное количество цифр после запятой 2.")
     private BigDecimal price;
 
-
-    public BookDTO() {
-    }
-
-    public BookDTO(String ISBN, String title, String author, int numberOfPages, double weight, BigDecimal price) {
-        this.ISBN = ISBN;
-        this.title = title;
-        this.author = author;
-        this.numberOfPages = numberOfPages;
-        this.weight = weight;
-        this.price = price;
-    }
-
-    public String getISBN() {
-        return ISBN;
-    }
-
-    public void setISBN(String ISBN) {
-        this.ISBN = ISBN;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public int getNumberOfPages() {
-        return numberOfPages;
-    }
-
-    public void setNumberOfPages(int numberOfPages) {
-        this.numberOfPages = numberOfPages;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    @Override
-    public String toString() {
-        return "BookDTO{" +
-                "ISBN=" + ISBN +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", numberOfPages=" + numberOfPages +
-                ", weight=" + weight +
-                ", price=" + price +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BookDTO bookDTO = (BookDTO) o;
-        return numberOfPages == bookDTO.numberOfPages && Double.compare(bookDTO.weight, weight) == 0 && Objects.equals(ISBN, bookDTO.ISBN) && Objects.equals(title, bookDTO.title) && Objects.equals(author, bookDTO.author) && Objects.equals(price, bookDTO.price);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(ISBN, title, author, numberOfPages, weight, price);
-    }
 }

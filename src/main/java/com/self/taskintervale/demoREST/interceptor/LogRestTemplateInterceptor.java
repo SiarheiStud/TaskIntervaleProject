@@ -20,7 +20,6 @@ public class LogRestTemplateInterceptor implements ClientHttpRequestInterceptor 
     public ClientHttpResponse intercept(HttpRequest request, byte[] body,
                                         ClientHttpRequestExecution execution) throws IOException {
 
-        log.info("------------------RestTemplateLogInterceptor------------------------");
         log.info("Request method: {}", request.getMethodValue());
         log.info("Request URI: {}", request.getURI());
         log.info("Request Headers: {}", request.getHeaders());

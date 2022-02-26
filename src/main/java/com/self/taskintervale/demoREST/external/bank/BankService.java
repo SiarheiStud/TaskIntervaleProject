@@ -2,13 +2,12 @@ package com.self.taskintervale.demoREST.external.bank;
 
 
 import com.self.taskintervale.demoREST.entity.BookEntity;
+import com.self.taskintervale.demoREST.exeptions.BankException;
 import com.self.taskintervale.demoREST.exeptions.BookNotFoundException;
 import com.self.taskintervale.demoREST.external.bank.Model.RateСurrency;
 import com.self.taskintervale.demoREST.external.bank.Model.RatesCurrencyList;
-import com.self.taskintervale.demoREST.repository.BooksRepositoryImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -19,40 +18,35 @@ import java.util.stream.Collectors;
 @Service
 public class BankService {
 
-    private final BooksRepositoryImpl booksRepositoryImpl;
     private final RestTemplate restTemplate;
 
-    private final String BASE_URL = "https://ibapi.alfabank.by:8273";
-    private final String URL_GET_RATES = BASE_URL + "/partner/1.0.1/public/rates";
+    private final String URL_GET_RATES = "/partner/1.0.1/public/rates";
 
-    @Autowired
-    public BankService(BooksRepositoryImpl booksRepositoryImpl, RestTemplate restTemplate) {
-        this.booksRepositoryImpl = booksRepositoryImpl;
+    public BankService(@Qualifier(value = "bankRestTemplate") RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
+    public List<BankDTO> getPrice(String title, List<BookEntity> bookEntityList)
+            throws BookNotFoundException, BankException {
 
-    public List<BankDTO> getPrice(String title) throws BookNotFoundException {
-
-        List<BookEntity> bookEntityList = booksRepositoryImpl.getBooksByTitle(title);
-
-        if (CollectionUtils.isEmpty(bookEntityList)) {
+        if (bookEntityList.isEmpty()) {
             throw new BookNotFoundException("Книга с названием: \"" + title + "\" не найдена в базе.");
-
         }
 
         List<BankDTO> bankDTOList = bookEntityList.stream()
-                .map(BankService::bookEntityIntoBankDTO)
+                .map(EntityBankDTOMapper::bookEntityIntoBankDTO)
                 .collect(Collectors.toList());
 
         //Получаем актуальные курсы валют
         RatesCurrencyList ratesCurrencyList = getRateList();
+        if(ratesCurrencyList == null){
+            throw new BankException("Не корректные данные от ibapi.alfabank.by:8273");
+        }
 
-        //Проставляем цену книги в других валютач
+        //Проставляем цену книги в других валютаx
         bankDTOList.forEach(r -> BankService.setDifferentPriceCurrency(ratesCurrencyList, r));
 
         return bankDTOList;
-
     }
 
     //Метод возвращает курсы основных валют
@@ -61,46 +55,25 @@ public class BankService {
         return restTemplate.getForObject(URL_GET_RATES, RatesCurrencyList.class);
     }
 
-
     //Метод устанвалвивает цену в основных валютах
-    private static BankDTO setDifferentPriceCurrency(RatesCurrencyList ratesCurrencyList, BankDTO bankDTO) {
+    private static void setDifferentPriceCurrency(RatesCurrencyList ratesCurrencyList, BankDTO bankDTO) {
 
         Map<String, BigDecimal> priceInCurrencyMap = new HashMap<>();
-        Map<String, String> isoMap = Map.of("RUB", "российских рублей",
-                "USD", "доллар США",
-                "EUR", "евро");
+        List<RateСurrency> ratesCurrencyListFromBank = ratesCurrencyList.getRatesCurrencyFromBank().stream()
+                .filter(rate -> rate.getName() != null)             // Отфильтровываем конверсии не относящиеся к BYN
+                .collect(Collectors.toList());
 
-        //Для каждой валюты находим соответствующий актуальный курс, и по нему рассчитываем стоимость книги
-        for (Map.Entry<String, String> entry : isoMap.entrySet()) {
-            Optional<RateСurrency> rateOptional = ratesCurrencyList.getRatesCurrencyFromBank().stream()
-                    .filter(r -> Objects.equals(r.getName(), entry.getValue()))
-                    .findAny();
+        for (RateСurrency rate : ratesCurrencyListFromBank) {
 
-            if (rateOptional.isPresent()) {
-                RateСurrency rateСurrency = rateOptional.get();
-                BigDecimal resultPrice = bankDTO.getPrice()
-                        .divide(rateСurrency.getBuyRate(), 4, RoundingMode.HALF_UP)
-                        .multiply(BigDecimal.valueOf(rateСurrency.getQuantity()));
+            BigDecimal resultPrice = bankDTO.getPrice()
+                    .divide(rate.getBuyRate(), 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(rate.getQuantity()));
 
-                priceInCurrencyMap.put(entry.getKey(), resultPrice);
-                bankDTO.setDateActualPrice(rateСurrency.getDate());
-            }
+            priceInCurrencyMap.put(rate.getSellIso(), resultPrice);
+            bankDTO.setDateActualPrice(rate.getDate());
         }
 
         priceInCurrencyMap.put("BYN", bankDTO.getPrice());
         bankDTO.setPriceInCurrency(priceInCurrencyMap);
-
-        return bankDTO;
-    }
-
-    //преобразование BookEntity в BankDTO
-    private static BankDTO bookEntityIntoBankDTO(BookEntity bookEntity) {
-
-        BankDTO bankDTO = new BankDTO();
-        bankDTO.setTitle(bookEntity.getTitle());
-        bankDTO.setAuthor(bookEntity.getAuthor());
-        bankDTO.setPrice(bookEntity.getPrice());
-
-        return bankDTO;
     }
 }

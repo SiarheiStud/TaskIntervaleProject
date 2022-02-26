@@ -2,6 +2,7 @@ package com.self.taskintervale.demoREST.services;
 
 import com.self.taskintervale.demoREST.entity.BookEntity;
 import com.self.taskintervale.demoREST.entity.dto.BookDTO;
+import com.self.taskintervale.demoREST.entity.dto.BookListDTO;
 import com.self.taskintervale.demoREST.exeptions.BookNotFoundException;
 import com.self.taskintervale.demoREST.exeptions.ISBNAlreadyExistsException;
 import com.self.taskintervale.demoREST.repository.BooksRepositoryImpl;
@@ -81,13 +82,15 @@ class BookServiceTest {
     }
 
     @Test
-    void getBooksReturnBookDTOList() {
+    void getBooksReturnBookListDTO() {
 
+        BookListDTO bookList = new BookListDTO();
+        bookList.setBookDtoList(bookDTOList);
         when(booksRepositoryImpl.getBooks()).thenReturn(bookEntityList);
-        List<BookDTO> testBookDTOList = bookService.getBooks();
+        BookListDTO testBookDTOList = bookService.getBooks();
 
         verify(booksRepositoryImpl, times(1)).getBooks();
-        assertEquals(bookDTOList, testBookDTOList);
+        assertEquals(bookList, testBookDTOList);
     }
 
     //***********************************************************************************************

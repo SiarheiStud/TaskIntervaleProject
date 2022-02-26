@@ -1,8 +1,13 @@
 package com.self.taskintervale.demoREST.external.openlibrary;
 
-import java.util.Objects;
+import lombok.*;
 
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class OpenLibraryBookDTO {
 
     private String ISBN;
@@ -10,76 +15,4 @@ public class OpenLibraryBookDTO {
     private String author;
     private int numberOfPages;
 
-    public OpenLibraryBookDTO() {
-    }
-
-    public OpenLibraryBookDTO(String ISBN, String title, String author, int numberOfPages) {
-        this.ISBN = ISBN;
-        this.title = title;
-        this.author = author;
-        this.numberOfPages = numberOfPages;
-    }
-
-    public String getISBN() {
-
-        return ISBN;
-    }
-
-    public void setISBN(String ISBN) {
-
-        this.ISBN = ISBN;
-    }
-
-    public String getTitle() {
-
-        return title;
-    }
-
-    public void setTitle(String title) {
-
-        this.title = title;
-    }
-
-    public String getAuthor() {
-
-        return author;
-    }
-
-    public void setAuthor(String author) {
-
-        this.author = author;
-    }
-
-    public int getNumberOfPages() {
-
-        return numberOfPages;
-    }
-
-    public void setNumberOfPages(int numberOfPages) {
-
-        this.numberOfPages = numberOfPages;
-    }
-
-    @Override
-    public String toString() {
-        return "OpenLibraryBookDTO{" +
-                "ISBN='" + ISBN + '\'' +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", numberOfPages=" + numberOfPages +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        OpenLibraryBookDTO that = (OpenLibraryBookDTO) o;
-        return numberOfPages == that.numberOfPages && Objects.equals(ISBN, that.ISBN) && Objects.equals(title, that.title) && Objects.equals(author, that.author);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(ISBN, title, author, numberOfPages);
-    }
 }

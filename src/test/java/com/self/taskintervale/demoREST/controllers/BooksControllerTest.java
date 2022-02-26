@@ -1,6 +1,7 @@
 package com.self.taskintervale.demoREST.controllers;
 
 import com.self.taskintervale.demoREST.entity.dto.BookDTO;
+import com.self.taskintervale.demoREST.entity.dto.BookListDTO;
 import com.self.taskintervale.demoREST.exeptions.BookNotFoundException;
 import com.self.taskintervale.demoREST.exeptions.ISBNAlreadyExistsException;
 import com.self.taskintervale.demoREST.services.BookService;
@@ -61,8 +62,10 @@ class BooksControllerTest {
     @Test
     void getAllBooksReturnStatus201AndBookDTOList() {
 
-        when(bookService.getBooks()).thenReturn(bookDTOList);
-        ResponseEntity<List<BookDTO>> response = testRestTemplate.exchange(
+        BookListDTO bookListDTO = new BookListDTO();
+        bookListDTO.setBookDtoList(bookDTOList);
+        when(bookService.getBooks()).thenReturn(bookListDTO);
+        ResponseEntity<BookListDTO> response = testRestTemplate.exchange(
                 "/books",
                 HttpMethod.GET,
                 null,
@@ -70,7 +73,7 @@ class BooksControllerTest {
                 });
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(bookDTOList, response.getBody());
+        assertEquals(bookListDTO, response.getBody());
         verify(bookService,times(1)).getBooks();
     }
 

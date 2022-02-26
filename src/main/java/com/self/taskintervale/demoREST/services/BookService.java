@@ -2,6 +2,7 @@ package com.self.taskintervale.demoREST.services;
 
 import com.self.taskintervale.demoREST.entity.BookEntity;
 import com.self.taskintervale.demoREST.entity.dto.BookDTO;
+import com.self.taskintervale.demoREST.entity.dto.BookListDTO;
 import com.self.taskintervale.demoREST.exeptions.BookNotFoundException;
 import com.self.taskintervale.demoREST.exeptions.ISBNAlreadyExistsException;
 import com.self.taskintervale.demoREST.repository.BooksRepositoryImpl;
@@ -47,13 +48,16 @@ public class BookService {
         return bookEntity;
     }
 
-    public List<BookDTO> getBooks() {
+    public BookListDTO getBooks() {
 
         List<BookEntity> bookEntityList = booksRepositoryImpl.getBooks();
 
-        return bookEntityList.stream().
-                map(BookService::bookEntityIntoDTO).
-                collect(Collectors.toList());
+        BookListDTO bookListDTO = new BookListDTO();
+        bookListDTO.setBookDtoList(bookEntityList.stream()
+                .map(BookService::bookEntityIntoDTO)
+                .collect(Collectors.toList()));
+
+        return bookListDTO;
     }
 
     public void saveBook(BookDTO bookDTO) throws ISBNAlreadyExistsException {
@@ -89,5 +93,13 @@ public class BookService {
             throw new BookNotFoundException("Процедура удаления не произведена! Книга c id = " + id + " не найдена.");
         }
         booksRepositoryImpl.deleteBook(id);
+    }
+
+    public List<BookEntity> getBooksByAuthorName(String authorName) {
+        return booksRepositoryImpl.getBooksByAuthorName(authorName);
+    }
+
+    public List<BookEntity> getBooksByTitle(String title) {
+        return booksRepositoryImpl.getBooksByAuthorName(title);
     }
 }

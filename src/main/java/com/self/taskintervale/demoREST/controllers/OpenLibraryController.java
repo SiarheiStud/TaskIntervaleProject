@@ -1,9 +1,11 @@
 package com.self.taskintervale.demoREST.controllers;
 
+import com.self.taskintervale.demoREST.entity.BookEntity;
 import com.self.taskintervale.demoREST.external.openlibrary.OpenLibraryBookDTO;
+import com.self.taskintervale.demoREST.exeptions.OpenLibraryException;
 import com.self.taskintervale.demoREST.external.openlibrary.OpenLibraryService;
+import com.self.taskintervale.demoREST.services.BookService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,15 +21,21 @@ import java.util.List;
 public class OpenLibraryController {
 
     private final OpenLibraryService openLibraryService;
+    private final BookService bookService;
 
-    @Autowired
-    public OpenLibraryController(OpenLibraryService openLibraryService) {
+    public OpenLibraryController(OpenLibraryService openLibraryService, BookService bookService) {
         this.openLibraryService = openLibraryService;
+        this.bookService = bookService;
     }
 
     @GetMapping("/books/{authorName}")
-    public ResponseEntity<List<OpenLibraryBookDTO>> getBookByAuthorName(@PathVariable String authorName) {
+    public ResponseEntity<List<OpenLibraryBookDTO>> getBookByAuthorName(@PathVariable String authorName)
+            throws OpenLibraryException {
 
-        return new ResponseEntity<>(openLibraryService.getBooksByAuthorName(authorName), HttpStatus.OK);
+        //Получаем книги автора из локальной базы данных
+        List<BookEntity> booksEntityFromDB = bookService.getBooksByAuthorName(authorName);
+
+        return new ResponseEntity<>(openLibraryService.getBooksByAuthorName(authorName, booksEntityFromDB),
+                HttpStatus.OK);
     }
 }
