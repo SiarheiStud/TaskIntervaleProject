@@ -22,6 +22,7 @@
 		<postgresql.version>42.3.1</postgresql.version>
 		<spring-boot-starter-data-jdbc.version>2.6.2</spring-boot-starter-data-jdbc.version>
 		<liquibase-core.version>4.7.1</liquibase-core.version>
+		<spring-kafka.version>2.8.3</spring-kafka.version>
 	</properties>
 
 	<dependencies>
@@ -76,6 +77,15 @@
 			<artifactId>liquibase-core</artifactId>
 			<version>${liquibase-core.version}</version>
 		</dependency>
+
+		<!--kafka-->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>${spring-kafka.version}</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
