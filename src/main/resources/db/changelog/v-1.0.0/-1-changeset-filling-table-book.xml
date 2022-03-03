@@ -1,0 +1,28 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="filling table book" author="Studziankou">
+        <comment>Заполнение таблицы book данными</comment>
+        <sql>
+            INSERT INTO book (ISBN, title, author, numberOfPages, weight, price)
+            VALUES('1234567891234', 'Безумство человека', 'Малышева', 230, 0.255, 120.15);
+
+            INSERT INTO book (ISBN, title, author, numberOfPages, weight, price)
+            VALUES('1114567891234', 'Русский язык', 'Бортник', 130, 1.55, 10.55);
+
+            INSERT INTO book (ISBN, title, author, numberOfPages, weight, price)
+            VALUES('1222567891234', 'Очистные сооружения', 'Соколов', 50, 0.89, 730.7)
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM book</sql>
+        </rollback>
+
+    </changeSet>
+
+
+
+</databaseChangeLog>

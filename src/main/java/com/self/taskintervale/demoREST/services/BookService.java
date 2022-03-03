@@ -2,13 +2,14 @@ package com.self.taskintervale.demoREST.services;
 
 import com.self.taskintervale.demoREST.entity.BookEntity;
 import com.self.taskintervale.demoREST.entity.dto.BookDTO;
+import com.self.taskintervale.demoREST.entity.dto.BookListDTO;
 import com.self.taskintervale.demoREST.exeptions.BookNotFoundException;
 import com.self.taskintervale.demoREST.exeptions.ISBNAlreadyExistsException;
 import com.self.taskintervale.demoREST.repository.BooksRepositoryImpl;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookService {
@@ -33,7 +34,6 @@ public class BookService {
         return bookDTO;
     }
 
-
     //преобразование BookDTO в BookEntity
     public static BookEntity bookDTOIntoEntity(BookDTO bookDTO) {
 
@@ -48,55 +48,58 @@ public class BookService {
         return bookEntity;
     }
 
+    public BookListDTO getBooks() {
 
-    public Map<Long, BookDTO> getBooks() {
+        List<BookEntity> bookEntityList = booksRepositoryImpl.getBooks();
 
-        Map<Long, BookEntity> bookEntityMap = booksRepositoryImpl.getBooksMap();
-        Map<Long, BookDTO> bookDTOMap = new HashMap<>();
-        bookEntityMap.forEach((key, bookEntity) -> bookDTOMap.put(key, BookService.bookEntityIntoDTO(bookEntity)));
+        BookListDTO bookListDTO = new BookListDTO();
+        bookListDTO.setBookDtoList(bookEntityList.stream()
+                .map(BookService::bookEntityIntoDTO)
+                .collect(Collectors.toList()));
 
-        return bookDTOMap;
+        return bookListDTO;
     }
-
 
     public void saveBook(BookDTO bookDTO) throws ISBNAlreadyExistsException {
 
         BookEntity bookEntity = BookService.bookDTOIntoEntity(bookDTO);
-        if (booksRepositoryImpl.containsISBN(bookEntity)) {
+        if (booksRepositoryImpl.isContainsISBN(bookEntity)) {
             throw new ISBNAlreadyExistsException("Не корректный ISBN! Книга с ISBN = " + bookEntity.getISBN() +
                     " уже содержится в каталоге.");
         }
-        booksRepositoryImpl.save(bookEntity);
-    }
 
+        booksRepositoryImpl.saveBook(bookEntity);
+    }
 
     public void updateBook(BookDTO bookDTO, Long id) throws ISBNAlreadyExistsException, BookNotFoundException {
 
         BookEntity bookEntity = BookService.bookDTOIntoEntity(bookDTO);
         bookEntity.setId(id);
         if (booksRepositoryImpl.otherBookContainsISBN(bookEntity)) {
-            throw new ISBNAlreadyExistsException("Не корректный ISBN! Книга с ISBN = " + bookEntity.getISBN() +
-                    " уже содержится в каталоге.");
+            throw new ISBNAlreadyExistsException("Обновить данные книги не удалось! ISBN завизирован! Книга с ISBN = "
+                    + bookEntity.getISBN() + " уже содержится в базе.");
         }
-        if (!booksRepositoryImpl.containsId(bookEntity)) {
-            throw new BookNotFoundException("Редактируемая книга не найдена в каталоге. Id книги = " + bookEntity.getId() +
-                    "(книги с этим ID нет в каталоге книг)");
+        if (!booksRepositoryImpl.isContainsId(id)) {
+            throw new BookNotFoundException("Редактируемая книга не найдена в базе. Id книги = " + bookEntity.getId() +
+                    "(книги с этим ID нет в каталоге книг).");
         }
+
         booksRepositoryImpl.updateBook(bookEntity);
     }
 
-
     public void deleteBook(Long id) throws BookNotFoundException {
 
-        if (booksRepositoryImpl.getBookById(id) == null) {
-            throw new BookNotFoundException("Книга c id = " + id + " не найдена");
+        if (!booksRepositoryImpl.isContainsId(id)) {
+            throw new BookNotFoundException("Процедура удаления не произведена! Книга c id = " + id + " не найдена.");
         }
-        booksRepositoryImpl.delete(id);
+        booksRepositoryImpl.deleteBook(id);
     }
 
-
-    public BookEntity findBookById(Long id) {
-        return booksRepositoryImpl.getBookById(id);
+    public List<BookEntity> getBooksByAuthorName(String authorName) {
+        return booksRepositoryImpl.getBooksByAuthorName(authorName);
     }
 
+    public List<BookEntity> getBooksByTitle(String title) {
+        return booksRepositoryImpl.getBooksByAuthorName(title);
+    }
 }

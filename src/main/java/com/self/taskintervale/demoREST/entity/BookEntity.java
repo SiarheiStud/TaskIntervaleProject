@@ -1,21 +1,25 @@
 package com.self.taskintervale.demoREST.entity;
 
-import com.self.taskintervale.demoREST.violation.CountDigits;
+import lombok.*;
 
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
-import java.util.Objects;
 
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class BookEntity {
 
     private Long id;
 
-    @CountDigits(message = "ISBN должно состоять из 13 цифр.") // Самопальная аннатация валидирующая то чтобы ISBN
-                                                               // состоял ровно из 13 цифр
-    @NotNull(message = "Значение ISBN не должно быть null.")
-    @Positive(message = "Число ISBN не может быть отрицательным.")
-    private Long ISBN; //уникальный 13-ти значный номер состоящий из цифр
+
+    @NotBlank(message = "ISBN не должен быть null и не должен состоять из одних пробельных символов.")
+    @Pattern(regexp = "[0-9]{13}", message = "ISBN должен состоять из 13 цифр и иметь " +
+            "формат 1351735147093")
+    private String ISBN; //уникальный 13-ти значный номер состоящий из цифр, формат ISBN 1351735147093
 
 
     @NotBlank(message = "Название книги не должно быть null и не должно состоять из одних пробельных символов.")
@@ -46,100 +50,4 @@ public class BookEntity {
     @Digits(integer = 7, fraction = 2, message = "Максимальная цена книги 9999999.99 . " +
             "Максимальное количество цифр после запятой 2.")
     private BigDecimal price;
-
-    public BookEntity() {
-    }
-
-    public BookEntity(Long id, Long ISBN, String title, String author, int numberOfPages, double weight, BigDecimal price) {
-        this.id = id;
-        this.ISBN = ISBN;
-        this.title = title;
-        this.author = author;
-        this.numberOfPages = numberOfPages;
-        this.weight = weight;
-        this.price = price;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setISBN(Long ISBN) {
-        this.ISBN = ISBN;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public void setNumberOfPages(int numberOfPages) {
-        this.numberOfPages = numberOfPages;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getISBN() {
-        return ISBN;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public int getNumberOfPages() {
-        return numberOfPages;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    @Override
-    public String toString() {
-        return "Book{" +
-                "id=" + id +
-                ", ISBN=" + ISBN +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", numberOfPages=" + numberOfPages +
-                ", weight=" + weight +
-                ", price=" + price +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BookEntity bookEntity = (BookEntity) o;
-        return numberOfPages == bookEntity.numberOfPages && Double.compare(bookEntity.weight, weight) == 0 && Objects.equals(id, bookEntity.id) && Objects.equals(ISBN, bookEntity.ISBN) && Objects.equals(title, bookEntity.title) && Objects.equals(author, bookEntity.author) && Objects.equals(price, bookEntity.price);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, ISBN, title, author, numberOfPages, weight, price);
-    }
-
 }

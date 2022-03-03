@@ -58,4 +58,20 @@ public class BooksExceptionHandler {
         });
         return new ResponseEntity<>(findErrors, status);
     }
+
+    // Отрабатывает при проблемах с openlibrary
+    @ExceptionHandler(value = {OpenLibraryException.class})
+    public ResponseEntity<String> handlerOpenLibraryException(OpenLibraryException e) {
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(e.getMessage(), status);
+    }
+
+    // Отрабатывает при проблемах с ibapi.alfabank.by:8273
+    @ExceptionHandler(value = {BankException.class})
+    public ResponseEntity<String> handlerBankException(BankException e) {
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(e.getMessage(), status);
+    }
 }

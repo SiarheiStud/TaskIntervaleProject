@@ -1,0 +1,50 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+
+    <changeSet id="create table book" author="Studziankou">
+        <comment>Создание таблицы book</comment>
+
+        <!--
+        <createTable tableName="book">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="ISBN" type="varchar(13)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="author" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="numberOfPages" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weight" type="decimal">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="double precision">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        -->
+
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 endDelimiter="\nNext_command"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"
+                 path="-1-create-book.sql"/>
+
+        <rollback>
+            <sql>DROP TABLE book</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

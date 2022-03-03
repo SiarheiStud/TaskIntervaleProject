@@ -1,64 +1,102 @@
 package com.self.taskintervale.demoREST.repository;
 
 import com.self.taskintervale.demoREST.entity.BookEntity;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 @Component
-public class BooksRepositoryImpl {
+public class BooksRepositoryImpl implements BookRepository {
 
-    private Map<Long, BookEntity> booksMap = new HashMap<>();
+    private final JdbcTemplate jdbcTemplate;
 
-    private static Long countId = 3L; // искусственный счётчик, стартовое количество элементов в booksMap = 3 (так как
-                                      // в booksMap заранее добавляем 3 элемента
-
-    {
-        booksMap.put(1L, new BookEntity(1L, 1234567891234L, "Безумство человека", "Малышева",
-                230, 0.255, BigDecimal.valueOf(120.15)));
-        booksMap.put(2L, new BookEntity(2L, 1114567891234L, "Русский язык", "Бортник",
-                130, 1.550, BigDecimal.valueOf(10.55)));
-        booksMap.put(3L, new BookEntity(3L, 1222567891234L, "Очистные сооружения", "Соколов",
-                50, 0.890, BigDecimal.valueOf(730.70)));
+    public BooksRepositoryImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Map<Long, BookEntity> getBooksMap() {
-        return booksMap;
+    // CRUD запросы
+    private static final String GET_BOOKS = "SELECT * FROM book";
+    private static final String ADD_BOOK = "INSERT INTO book (ISBN, title, author, numberOfPages, weight, price)" +
+            "VALUES(?, ?, ?, ?, ?, ?);";
+    private static final String UPDATE_BOOK = "Update book SET ISBN=?, title=?, author=?, numberOfPages=?, weight=?, " +
+            "price=? WHERE id=?";
+    private static final String DELETE_BOOK = "DELETE FROM book WHERE id=?";
+
+    // Вспомогательные запросы
+    private static final String FIND_BOOK_BY_ID = "SELECT * FROM book WHERE id=?";
+    private static final String FIND_BOOK_BY_ISBN = "SELECT * FROM book WHERE ISBN=?";
+    private static final String FIND_OTHER_BOOK_WITH_ISBN = "SELECT * FROM book WHERE ISBN=? AND id<>?";
+    private static final String FIND_BOOK_BY_AUTHOR_NAME = "SELECT * FROM book WHERE author=?"; //LIKE %?%";
+    private static final String FIND_BOOK_BY_TITLE = "SELECT * FROM book WHERE title=?";
+
+
+    @Override
+    public List<BookEntity> getBooks() {
+        return jdbcTemplate.query(GET_BOOKS, new BeanPropertyRowMapper<>(BookEntity.class));
     }
 
-    public void save(BookEntity bookEntity) {
-        countId = countId + 1;
-        bookEntity.setId(countId);
-        booksMap.put(countId, bookEntity);
+    @Override
+    public void saveBook(BookEntity bookEntity) {
+        jdbcTemplate.update(ADD_BOOK, bookEntity.getISBN(), bookEntity.getTitle(), bookEntity.getAuthor(),
+                bookEntity.getNumberOfPages(), bookEntity.getWeight(), bookEntity.getPrice());
     }
 
+    @Override
     public void updateBook(BookEntity bookEntity) {
-        booksMap.put(bookEntity.getId(), bookEntity);
+        jdbcTemplate.update(UPDATE_BOOK, bookEntity.getISBN(), bookEntity.getTitle(), bookEntity.getAuthor(),
+                bookEntity.getNumberOfPages(), bookEntity.getWeight(), bookEntity.getPrice(), bookEntity.getId());
     }
 
-    public void delete(Long id) {
-        booksMap.remove(id);
+    @Override
+    public void deleteBook(Long id) {
+        jdbcTemplate.update(DELETE_BOOK, id);
     }
 
-    public BookEntity getBookById(Long id) {
-        return booksMap.get(id);
+    // возвращает true если передаваемый id найден в базе
+    @Override
+    public boolean isContainsId(Long id) {
+
+        List<BookEntity> bookEntityList = jdbcTemplate.query(FIND_BOOK_BY_ID,
+                new BeanPropertyRowMapper<>(BookEntity.class), id);
+
+        return !bookEntityList.isEmpty();
     }
 
-    // возвращает True если ISBN передаваемой книги book совпадает с ISBN книги уже имеющейся в каталоге
-    public boolean containsISBN(BookEntity bookEntity) {
-        return booksMap.values().stream().anyMatch(b -> bookEntity.getISBN().equals(b.getISBN()));
+    // возвращает True если ISBN передаваемой книги совпадает с ISBN книги уже имеющейся в базе
+    @Override
+    public boolean isContainsISBN(BookEntity bookEntity) {
+
+        List<BookEntity> bookEntityList = jdbcTemplate.query(FIND_BOOK_BY_ISBN,
+                new BeanPropertyRowMapper<>(BookEntity.class), bookEntity.getISBN());
+
+        return !bookEntityList.isEmpty();
     }
 
-    // возвращает True если ISBN книги book (передаваемой в параметре метода), совпадает с ISBN книги уже имеющейся
-    // в каталоге (ситуация когда при редактировании книги, мы ввели ISBN который уже присвоен другой книге)
+    /*
+     * возвращает True если ISBN книги book (передаваемой в параметре метода), совпадает с ISBN книги уже имеющейся
+     * в каталоге (ситуация когда при редактировании книги, мы ввели ISBN который уже присвоен другой книге)
+     */
+    @Override
     public boolean otherBookContainsISBN(BookEntity bookEntity) {
-        return booksMap.values().stream().
-                filter(b -> !b.getId().equals(bookEntity.getId())).
-                anyMatch(b -> bookEntity.getISBN().equals(b.getISBN()));
+
+        List<BookEntity> bookEntityList = jdbcTemplate.query(FIND_OTHER_BOOK_WITH_ISBN,
+                new BeanPropertyRowMapper<>(BookEntity.class), bookEntity.getISBN(), bookEntity.getId());
+
+        return !bookEntityList.isEmpty();
     }
 
-    public boolean containsId(BookEntity bookEntity) {
-        return booksMap.containsKey(bookEntity.getId());
+    @Override
+    public List<BookEntity> getBooksByAuthorName(String authorName) {
+
+        return jdbcTemplate.query(FIND_BOOK_BY_AUTHOR_NAME,
+                new BeanPropertyRowMapper<>(BookEntity.class), authorName);
+    }
+
+    @Override
+    public List<BookEntity> getBooksByTitle(String title) {
+
+        return jdbcTemplate.query(FIND_BOOK_BY_TITLE, new BeanPropertyRowMapper<>(BookEntity.class), title);
     }
 }
