@@ -1,10 +1,13 @@
 package com.self.taskintervale.demoREST.external.Kafka;
 
+import com.self.taskintervale.demoREST.configuration.WebConfigWithKafka;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Slf4j
+@ConditionalOnBean(value = WebConfigWithKafka.class)
 @Component
 public class KafkaMessageSender {
 

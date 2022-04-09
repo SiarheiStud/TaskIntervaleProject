@@ -1,6 +1,8 @@
 package com.self.taskintervale.demoREST.interceptor;
 
+import com.self.taskintervale.demoREST.configuration.WebConfigWithKafka;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Enumeration;
 
 @Slf4j
+@ConditionalOnBean(value = WebConfigWithKafka.class)
 @Component
 public class KafkaInterceptor implements HandlerInterceptor {
 
