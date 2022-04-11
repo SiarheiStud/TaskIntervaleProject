@@ -1,4 +1,3 @@
-
 package com.self.taskintervale.demoREST.security.model;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,7 +24,7 @@ public enum Role {
         return customPermissionSet;
     }
 
-    public Set<SimpleGrantedAuthority> getAuthority(){
+    public Set<SimpleGrantedAuthority> getAuthority() {
         return getCustomPermissionSet().stream()
                 .map(customPermission -> new SimpleGrantedAuthority(customPermission.name()))
                 .collect(Collectors.toSet());

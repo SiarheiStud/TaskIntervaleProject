@@ -1,0 +1,27 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="filling table user_info" author="Studziankou">
+        <comment>Заполнение таблицы user_info данными</comment>
+        <sql>
+            INSERT INTO user_info (username, password, first_name, last_name, email, role, status)
+            VALUES
+            ('admin', '$2a$15$1FxgF6iw3cQTwMabbIWVbuXrB9v7bfUFBp1cQKuTSCe/b0K2k.zbG',
+            'Сергей', 'Сергеев', 'sergey@mail.ru', 'ADMIN', 'ACTIVE'),
+
+            ('user', '$2a$15$zKWWxSCFt8vo.cQNEEM/cO6Z1KGtWDAB/T.McLzkgrDU1sXWi4VkW',
+            'Игорь', 'Игорев', 'igor@mail.ru', 'USER', 'ACTIVE'),
+
+            ('manager' , '$2a$15$6LZpy7rmeHNfNgObfu799OXN9ywvhs/7AiRdTQJdIo.4Vgooq.Exq',
+            'Андрей', 'Андреев', 'andrey@mail.ru', 'MANAGER', 'ACTIVE');
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM user_info where id>0</sql>
+        </rollback>
+
+    </changeSet>
+</databaseChangeLog>
